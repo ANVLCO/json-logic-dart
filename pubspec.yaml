@@ -1,8 +1,7 @@
 name: json_logic_dart
 description: Build complex rules, serialize them as JSON, and execute them in Dart
-# version: 1.0.0
-# homepage: https://github.com/ANVLCO/json-logic-dart
-# author: John Ellis <john@anvl.com>
+version: 0.0.1
+homepage: https://github.com/ANVLCO/json-logic-dart
 
 environment:
   sdk: '>=2.5.0 <3.0.0'
