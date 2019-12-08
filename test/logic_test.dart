@@ -1,4 +1,4 @@
-import 'package:json_logic_dart/json_logic_dart.dart';
+import 'package:json_logic_dart/logic.dart';
 import 'package:test/test.dart';
 
 void main() {
