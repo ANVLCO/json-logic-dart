@@ -1,13 +1,13 @@
 class JsonLogic {
   static final Map<String, Function> operations = {
-    '==' : (a, b)    { return a.equals(b); },
+    '==' : (a, b)    { return a == b; }, // Assume everything is a primitive
     '===': (a, b)    { return a == b; },
-    '!=' : (a, b)    { return ! a.equals(b); },
+    '!=' : (a, b)    { return a != b; }, // Assume everything is a primitive
     '!==': (a, b)    { return a != b; },
     '>'  : (a, b)    { return a > b; },
     '>=' : (a, b)    { return a >= b; },
-    '<'  : (a, b, c) { return c == null ? a < b : (a < b) && (b < c); },
-    '<=' : (a, b, c) { return c == null ? a <= b : (a <= b) && (b <= c); },
+    '<'  : (a, b)    { return a < b; },
+    '<=' : (a, b)    { return a <= b; },
     '!!' : (a)       { return _truthy(a); },
     '!'  : (a)       { return ! _truthy(a); },
     '%'  : (a, b)    { return a % b; },
@@ -17,8 +17,14 @@ class JsonLogic {
 
   /// A JsonLogic requirement to consistently evaluate arrays
   /// http://jsonlogic.com/truthy
-  static _truthy(dynamic value) {
-    return value.isEmpty ?  false : !! value;
+  static bool _truthy(dynamic value) {
+    if(value is List) {
+      return value.isNotEmpty;
+    } else if (value is bool) {
+      return !!value;
+    } else {
+      return value != null;
+    }
   }
 
   bool _isLogic(logic) {
@@ -29,7 +35,7 @@ class JsonLogic {
     return logic.keys.first;
   }
 
-  dynamic apply(logic, data) {
+  dynamic apply(logic, Map<Symbol, dynamic> data) {
     // You've recursed to a primitive, stop!
     if(! _isLogic(logic)) {
       return logic;
@@ -39,7 +45,7 @@ class JsonLogic {
     var values = logic[op];
 
     // easy syntax for unary operators, like {"var" : "x"} instead of strict {"var" : ["x"]}
-    if( ! values is List) {
+    if(! (values is List)) {
       values = [values];
     }
 
@@ -48,12 +54,8 @@ class JsonLogic {
     // Everyone else gets immediate depth-first recursion
     values = values.map((val) {
       return apply(val, data);
-    });
+    }).toList();
 
-    print(op);
-    print(data);
-    print(values);
-
-    return operations[op](data, values);
+    return Function.apply(operations[op], values, data);
   }
 }
