@@ -12,7 +12,7 @@ class JsonLogic {
     '!'  : (a)       { return ! _truthy(a); },
     '%'  : (a, b)    { return a % b; },
     'log': (a)       { print(a); return a; },
-    'in' : (a, b)    { return (b as List).contains(a); }
+    'in' : (a, b)    { return b.contains(a); }
   };
 
   /// A JsonLogic requirement to consistently evaluate arrays
@@ -27,15 +27,15 @@ class JsonLogic {
     }
   }
 
-  bool _isLogic(logic) {
+  static bool _isLogic(logic) {
     return logic is Map;
   }
 
-  String _getOperator(Map logic) {
+  static String _getOperator(Map logic) {
     return logic.keys.first;
   }
 
-  dynamic apply(logic, Map<Symbol, dynamic> data) {
+  static dynamic apply(logic, Map<Symbol, dynamic> data) {
     // You've recursed to a primitive, stop!
     if(! _isLogic(logic)) {
       return logic;

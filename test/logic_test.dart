@@ -4,278 +4,273 @@ import 'dart:convert';
 
 void main() {
   group('Value Equality', () {
-    JsonLogic jsonLogic;
-
-    setUp(() {
-      jsonLogic = JsonLogic();
-    });
-
     test('Equal integers', () {
       var serialized = '{ "==" : [1, 1] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isTrue);
+      expect(JsonLogic.apply(logic, {}), isTrue);
     });
 
     test('Unequal integers', () {
       var serialized = '{ "==" : [1, 2] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isFalse);
+      expect(JsonLogic.apply(logic, {}), isFalse);
     });
   });
 
   group('Instance Equality', () {
-    JsonLogic jsonLogic;
-
-    setUp(() {
-      jsonLogic = JsonLogic();
-    });
-
     test('Equal integers', () {
       var serialized = '{ "===" : [1, 1] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isTrue);
+      expect(JsonLogic.apply(logic, {}), isTrue);
     });
 
     test('Unequal integers', () {
       var serialized = '{ "===" : [1, 2] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isFalse);
+      expect(JsonLogic.apply(logic, {}), isFalse);
     });
   });
 
   group('Value Inequality', () {
-    JsonLogic jsonLogic;
-
-    setUp(() {
-      jsonLogic = JsonLogic();
-    });
-
     test('Equal integers', () {
       var serialized = '{ "!=" : [1, 1] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isFalse);
+      expect(JsonLogic.apply(logic, {}), isFalse);
     });
 
     test('Unequal integers', () {
       var serialized = '{ "!=" : [1, 2] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isTrue);
+      expect(JsonLogic.apply(logic, {}), isTrue);
     });
   });
 
   group('Instance Inequality', () {
-    JsonLogic jsonLogic;
-
-    setUp(() {
-      jsonLogic = JsonLogic();
-    });
-
     test('Equal integers', () {
       var serialized = '{ "!==" : [1, 1] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isFalse);
+      expect(JsonLogic.apply(logic, {}), isFalse);
     });
 
     test('Unequal integers', () {
       var serialized = '{ "!==" : [1, 2] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isTrue);
+      expect(JsonLogic.apply(logic, {}), isTrue);
     });
   });
 
   group('Greater Than', () {
-    JsonLogic jsonLogic;
-
-    setUp(() {
-      jsonLogic = JsonLogic();
-    });
-
     test('Equal integers', () {
       var serialized = '{ ">" : [1, 1] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isFalse);
+      expect(JsonLogic.apply(logic, {}), isFalse);
     });
 
     test('Less than integers', () {
       var serialized = '{ ">" : [1, 2] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isFalse);
+      expect(JsonLogic.apply(logic, {}), isFalse);
     });
 
     test('Greater than integers', () {
       var serialized = '{ ">" : [2, 1] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isTrue);
+      expect(JsonLogic.apply(logic, {}), isTrue);
     });
   });
 
   group('Greater Than or Equal To', () {
-    JsonLogic jsonLogic;
-
-    setUp(() {
-      jsonLogic = JsonLogic();
-    });
-
     test('Equal integers', () {
       var serialized = '{ ">=" : [1, 1] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isTrue);
+      expect(JsonLogic.apply(logic, {}), isTrue);
     });
 
     test('Less than integers', () {
       var serialized = '{ ">=" : [1, 2] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isFalse);
+      expect(JsonLogic.apply(logic, {}), isFalse);
     });
 
     test('Greater than integers', () {
       var serialized = '{ ">=" : [2, 1] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isTrue);
+      expect(JsonLogic.apply(logic, {}), isTrue);
     });
   });
 
   group('Less Than', () {
-    JsonLogic jsonLogic;
-
-    setUp(() {
-      jsonLogic = JsonLogic();
-    });
-
     test('Equal integers', () {
       var serialized = '{ "<" : [1, 1] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isFalse);
+      expect(JsonLogic.apply(logic, {}), isFalse);
     });
 
     test('Less than integers', () {
       var serialized = '{ "<" : [1, 2] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isTrue);
+      expect(JsonLogic.apply(logic, {}), isTrue);
     });
 
     test('Greater than integers', () {
       var serialized = '{ "<" : [2, 1] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isFalse);
+      expect(JsonLogic.apply(logic, {}), isFalse);
     });
   });
 
   group('Less Than Equal To', () {
-    JsonLogic jsonLogic;
-
-    setUp(() {
-      jsonLogic = JsonLogic();
-    });
-
     test('Equal integers', () {
       var serialized = '{ "<=" : [1, 1] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isTrue);
+      expect(JsonLogic.apply(logic, {}), isTrue);
     });
 
     test('Less than integers', () {
       var serialized = '{ "<=" : [1, 2] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isTrue);
+      expect(JsonLogic.apply(logic, {}), isTrue);
     });
 
     test('Greater than integers', () {
       var serialized = '{ "<=" : [2, 1] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isFalse);
+      expect(JsonLogic.apply(logic, {}), isFalse);
     });
   });
 
   group('Double Negation', () {
-    JsonLogic jsonLogic;
-
-    setUp(() {
-      jsonLogic = JsonLogic();
-    });
-
     test('Empty array', () {
       var serialized = '{ "!!" : [[]] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isFalse);
+      expect(JsonLogic.apply(logic, {}), isFalse);
     });
 
     test('Non-zero array', () {
       var serialized = '{ "!!" : [[\"0\"]] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isTrue);
+      expect(JsonLogic.apply(logic, {}), isTrue);
     });
 
     test('Boolean true', () {
       var serialized = '{ "!!" : [true] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isTrue);
+      expect(JsonLogic.apply(logic, {}), isTrue);
     });
 
     test('Boolean false', () {
       var serialized = '{ "!!" : [false] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isFalse);
+      expect(JsonLogic.apply(logic, {}), isFalse);
     });
 
     test('Integer value', () {
       var serialized = '{ "!!" : [1] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isTrue);
+      expect(JsonLogic.apply(logic, {}), isTrue);
     });
   });
 
   group('Logical Negation', () {
-    JsonLogic jsonLogic;
-
-    setUp(() {
-      jsonLogic = JsonLogic();
-    });
-
     test('Boolean true array', () {
       var serialized = '{ "!" : [[true]] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isFalse);
+      expect(JsonLogic.apply(logic, {}), isFalse);
     });
 
     test('Boolean true', () {
       var serialized = '{ "!" : [true] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isFalse);
+      expect(JsonLogic.apply(logic, {}), isFalse);
     });
 
     test('Boolean false', () {
       var serialized = '{ "!" : [false] }';
       Map logic = jsonDecode(serialized) as Map<String, dynamic>;
 
-      expect(jsonLogic.apply(logic, {}), isTrue);
+      expect(JsonLogic.apply(logic, {}), isTrue);
+    });
+  });
+
+  group('Modulus', () {
+    test('Modulus with remainder', () {
+      var serialized = '{ "%" : [3, 2] }';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), 1);
+    });
+
+    test('Zeros', () {
+      var serialized = '{ "%" : [0, 1] }';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), 0);
+    });
+  });
+
+  group('Log', () {
+    test('Value is returned back', () {
+      var serialized = '{ "log" : "I dunno man" }';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), 'I dunno man');
+    });
+  });
+
+  group('In', () {
+    test('String within a string', () {
+      var serialized = '{ "in" : ["Spring", "Springfield"] }';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), isTrue);
+    });
+
+    test('String not in a string', () {
+      var serialized = '{ "in" : ["Sprong", "Springfield"] }';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), isFalse);
+    });
+
+    test('Item within an array', () {
+      var serialized = '{"in" : [ "Ringo", ["John", "Paul", "George", "Ringo"] ]}';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), isTrue);
+    });
+
+    test('Item not within an array', () {
+      var serialized = '{"in" : [ "Mitch", ["John", "Paul", "George", "Ringo"] ]}';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), isFalse);
     });
   });
 }
