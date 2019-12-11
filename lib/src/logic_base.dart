@@ -1,18 +1,21 @@
 class JsonLogic {
   static final Map<String, Function> operations = {
-    '==' : (a, b)    { return a == b; }, // Assume everything is a primitive
-    '===': (a, b)    { return a == b; },
-    '!=' : (a, b)    { return a != b; }, // Assume everything is a primitive
-    '!==': (a, b)    { return a != b; },
-    '>'  : (a, b)    { return a > b; },
-    '>=' : (a, b)    { return a >= b; },
-    '<'  : (a, b)    { return a < b; },
-    '<=' : (a, b)    { return a <= b; },
-    '!!' : (a)       { return _truthy(a); },
-    '!'  : (a)       { return ! _truthy(a); },
-    '%'  : (a, b)    { return a % b; },
-    'log': (a)       { print(a); return a; },
-    'in' : (a, b)    { return b.contains(a); }
+    '=='    :(a, b)    => a == b, // Assume everything is a primitive
+    '==='   :(a, b)    => a == b,
+    '!='    :(a, b)    => a != b, // Assume everything is a primitive
+    '!=='   :(a, b)    => a != b,
+    '>'     :(a, b)    => a > b,
+    '>='    :(a, b)    => a >= b,
+    '<'     :(a, b)    => a < b,
+    '<='    :(a, b)    => a <= b,
+    '!!'    :(a)       => _truthy(a),
+    '!'     :(a)       => ! _truthy(a),
+    '%'     :(a, b)    => a % b,
+    'log'   :(a)       { print(a); return a; },
+    'in'    :(a, b)    => b.contains(a),
+    'cat'   :(a)       => (a as List).reduce((val, acc) => val.toString() + acc.toString()),
+    'substr':(a, b, c) => (a.toString().substring(b, c)),
+    '+'     :(a)       => (a as List).reduce((val, acc) => _safeInt(val) + _safeInt(acc)),
   };
 
   /// A JsonLogic requirement to consistently evaluate arrays
@@ -26,6 +29,8 @@ class JsonLogic {
       return value != null;
     }
   }
+
+  static int _safeInt(value) => value is String ? int.parse(value) : value;
 
   static bool _isLogic(logic) {
     return logic is Map;
@@ -56,6 +61,10 @@ class JsonLogic {
       return apply(val, data);
     }).toList();
 
-    return Function.apply(operations[op], values, data);
+    if(['cat', '+'].contains(op)) {
+      return operations[op](values);
+    } else {
+      return Function.apply(operations[op], values, data);
+    }
   }
 }
