@@ -1,3 +1,7 @@
+/// Port of json-logic-js
+/// Largely a line-by-line rephrasing of the JavaScript library as a Dart library
+/// Intentionally trying to keep all side-effects and nuances intact with this version
+
 class JsonLogic {
   static final Map<String, Function> operations = {
     '=='    :(a, b)    => a == b, // Assume everything is a primitive
@@ -21,12 +25,13 @@ class JsonLogic {
     '/'     :(a, b)    => _safeInt(a) / _safeInt(b),
     'min'   :(a)       => (a as List).reduce((acc, val) => val.toString().compareTo(acc.toString()) < 0 ? val : acc),
     'max'   :(a)       => (a as List).reduce((acc, val) => val.toString().compareTo(acc.toString()) > 0 ? val : acc),
+    'merge' :(a)       => (a as List).fold([], (acc, val) { val is Iterable ? acc.addAll(val) : acc.add(val); return acc; }),
   };
 
   /// A JsonLogic requirement to consistently evaluate arrays
   /// http://jsonlogic.com/truthy
   static bool _truthy(dynamic value) {
-    if(value is List) {
+    if(value is Iterable) {
       return value.isNotEmpty;
     } else if (value is bool) {
       return !!value;
@@ -38,11 +43,33 @@ class JsonLogic {
   static int _safeInt(value) {
    if(value is String) {
      return int.parse(value);
-   } else if(value is List) {
-     return _safeInt(value.elementAt(0));
+   } else if(value is Iterable) {
+     return _safeInt(value.single);
    }
 
    return value;
+  }
+
+  static dynamic _dereferenceVariable(String name, defaultValue, data) {
+    if(name == null || name == '') {
+      return data;
+    }
+
+    for(var prop in name.split('.')) {
+      if(data == null || data.isEmpty) {
+        return defaultValue;
+      }
+
+      if(data is Map && data.containsKey(prop)) {
+        data = data[prop];
+      } else if(data is Iterable) {
+        return data.elementAt(int.parse(prop));
+      } else {
+        return defaultValue;
+      }
+    }
+
+    return data;
   }
 
   static bool _isSingle(list) => (list as List).length == 1;
@@ -55,19 +82,22 @@ class JsonLogic {
     return logic.keys.first;
   }
 
-  static dynamic apply(logic, Map<Symbol, dynamic> data) {
+  static dynamic apply(logic, data) {
+    // Does this array contain logic? Only one way to find out.
+    if(logic is Iterable) {
+      return logic.map((l) => apply(l, data));
+    }
+
     // You've recursed to a primitive, stop!
     if(! _isLogic(logic)) {
       return logic;
     }
 
-    var op = _getOperator(logic);
-    var values = logic[op];
+    data ??= {};
 
     // easy syntax for unary operators, like {"var" : "x"} instead of strict {"var" : ["x"]}
-    if(! (values is List)) {
-      values = [values];
-    }
+    var op = _getOperator(logic);
+    List values = logic[op] is List ? logic[op] : [ logic[op] ];
 
     //TODO Implement if, and, or, filter, map, reduce, all, none, some
 
@@ -76,10 +106,18 @@ class JsonLogic {
       return apply(val, data);
     }).toList();
 
-    if(['cat', '+', '*', '-', 'min', 'max'].contains(op)) {
+    // The operation is called with "data" bound to named arguments
+    // and "values" passed as positional arguments. Structured commands like %
+    // or > can name formal arguments while flexible commands (like missing or
+    // merge) can operate on the pseudo-array arguments.
+    if(['cat', '+', '*', '-', 'min', 'max', 'merge'].contains(op)) {
       return operations[op](values);
+    } else if(op == 'var') {
+      var defaultValue = values.length < 2 ? null : values[1];
+      var name = values[0] is String ? values[0].trim() : values[0].toString();
+      return _dereferenceVariable(name, defaultValue, data);
     } else {
-      return Function.apply(operations[op], values, data);
+      return Function.apply(operations[op], values);
     }
   }
 }

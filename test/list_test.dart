@@ -78,4 +78,28 @@ void main() {
       expect(JsonLogic.apply(logic, {}), 'l');
     });
   });
+
+
+  group('Merge', () {
+    test('Empty array', () {
+      var serialized = '{ "merge" : [] }';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), []);
+    });
+
+    test('Several arrays', () {
+      var serialized = '{ "merge" : [[1, 2], [3, 4]] }';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), [1, 2, 3, 4]);
+    });
+
+    test('Single values and arrays', () {
+      var serialized = '{ "merge" : [1, 2, [3, 4]] }';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), [1, 2, 3, 4]);
+    });
+  });
 }
