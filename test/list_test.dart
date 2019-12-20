@@ -102,4 +102,45 @@ void main() {
       expect(JsonLogic.apply(logic, {}), [1, 2, 3, 4]);
     });
   });
+
+  group('Filter', () {
+    test('Empty array', () {
+      var serialized =
+      '''{
+        "filter": [
+          [],
+          {"%":[{"var":""}, 2]}
+        ]
+      }''';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), []);
+    });
+
+    test('Not an array', () {
+      var serialized =
+      '''{
+        "filter": [
+          1,
+          {"%":[{"var":""}, 2]}
+        ]
+      }''';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), []);
+    });
+
+    test('Filter even values', () {
+      var serialized =
+      '''{
+        "filter": [
+          [1, 2, 3, 4, 5],
+          {"%":[{"var":""}, 2]}
+        ]
+      }''';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), [1, 3, 5]);
+    });
+  });
 }

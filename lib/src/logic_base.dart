@@ -34,7 +34,9 @@ class JsonLogic {
     if(value is Iterable) {
       return value.isNotEmpty;
     } else if (value is bool) {
-      return !!value;
+      return value;
+    } else if (value is int) {
+      return value != 0;
     } else {
       return value != null;
     }
@@ -142,9 +144,21 @@ class JsonLogic {
         }
       }
       return current; // Last
+
+    } else if(op == 'filter'){
+      var scopedData = apply(values[0], data);
+      var scopedLogic = values[1];
+
+      if (! (scopedData is Iterable)) {
+        return [];
+      }
+      // Return only the elements from the array in the first argument,
+      // that return truthy when passed to the logic in the second argument.
+      // For parity with JavaScript, reindex the returned array
+      return scopedData.where((datum) => _truthy( apply(scopedLogic, datum)));
     }
 
-    //TODO Implement filter, map, reduce, all, none, some
+    //TODO Implement map, reduce, all, none, some
 
     // Everyone else gets immediate depth-first recursion
     values = values.map((val) {
