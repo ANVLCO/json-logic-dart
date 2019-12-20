@@ -102,4 +102,130 @@ void main() {
       expect(JsonLogic.apply(logic, {}), [1, 2, 3, 4]);
     });
   });
+
+  group('Filter', () {
+    test('Empty array', () {
+      var serialized =
+      '''{
+        "filter": [
+          [],
+          {"%":[{"var":""}, 2]}
+        ]
+      }''';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), []);
+    });
+
+    test('Not an array', () {
+      var serialized =
+      '''{
+        "filter": [
+          1,
+          {"%":[{"var":""}, 2]}
+        ]
+      }''';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), []);
+    });
+
+    test('Filter even values', () {
+      var serialized =
+      '''{
+        "filter": [
+          [1, 2, 3, 4, 5],
+          {"%":[{"var":""}, 2]}
+        ]
+      }''';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), [1, 3, 5]);
+    });
+  });
+
+  group('Map', () {
+    test('Empty array', () {
+      var serialized =
+      '''{
+        "map": [
+          [],
+          {"%":[{"var":""}, 2]}
+        ]
+      }''';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), []);
+    });
+
+    test('Not an array', () {
+      var serialized =
+      '''{
+        "map": [
+          1,
+          {"%":[{"var":""}, 2]}
+        ]
+      }''';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), []);
+    });
+
+    test('Mapped function', () {
+      var serialized =
+      '''{
+        "map": [
+          [1, 2, 3],
+          {"*":[{"var":""}, 2]}
+        ]
+      }''';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), [2, 4, 6]);
+    });
+  });
+
+  group('Reduce', () {
+    test('Empty array', () {
+      var serialized =
+      '''{
+        "reduce": [
+          [],
+          {"+": [{"var":"current"}, {"var":"accumulator"}]},
+          0
+        ]
+      }''';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), 0);
+    });
+
+    test('Not an array', () {
+      var serialized =
+      '''{
+        "reduce": [
+          1,
+          {"+": [{"var":"current"}, {"var":"accumulator"}]},
+          0
+        ]
+      }''';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), 0);
+    });
+
+    test('Sum all integers', () {
+      var serialized =
+      '''{
+        "reduce": [
+          [1, 2, 3],
+          {"+": [{"var":"current"}, {"var":"accumulator"}]},
+          0
+        ]
+      }''';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), 6);
+    });
+  });
 }

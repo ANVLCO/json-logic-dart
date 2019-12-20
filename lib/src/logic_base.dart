@@ -26,6 +26,7 @@ class JsonLogic {
     'min'   :(a)       => (a as List).reduce((acc, val) => val.toString().compareTo(acc.toString()) < 0 ? val : acc),
     'max'   :(a)       => (a as List).reduce((acc, val) => val.toString().compareTo(acc.toString()) > 0 ? val : acc),
     'merge' :(a)       => (a as List).fold([], (acc, val) { val is Iterable ? acc.addAll(val) : acc.add(val); return acc; }),
+    //TODO Implement missing, missing_some, method
   };
 
   /// A JsonLogic requirement to consistently evaluate arrays
@@ -34,7 +35,9 @@ class JsonLogic {
     if(value is Iterable) {
       return value.isNotEmpty;
     } else if (value is bool) {
-      return !!value;
+      return value;
+    } else if (value is int) {
+      return value != 0;
     } else {
       return value != null;
     }
@@ -99,7 +102,117 @@ class JsonLogic {
     var op = _getOperator(logic);
     List values = logic[op] is List ? logic[op] : [ logic[op] ];
 
-    //TODO Implement if, and, or, filter, map, reduce, all, none, some
+    // 'if', 'and', and 'or' violate the normal rule of depth-first calculating consequents, let each manage recursion as needed.
+    if(op == 'if' || op == '?:') {
+      /* 'if' should be called with a odd number of parameters, 3 or greater
+      This works on the pattern:
+      if( 0 ){ 1 }else{ 2 };
+      if( 0 ){ 1 }else if( 2 ){ 3 }else{ 4 };
+      if( 0 ){ 1 }else if( 2 ){ 3 }else if( 4 ){ 5 }else{ 6 };
+      The implementation is:
+      For pairs of values (0,1 then 2,3 then 4,5 etc)
+      If the first evaluates truthy, evaluate and return the second
+      If the first evaluates falsy, jump to the next pair (e.g, 0,1 to 2,3)
+      given one parameter, evaluate and return it. (it's an Else and all the If/ElseIf were false)
+      given 0 parameters, return NULL (not great practice, but there was no Else)
+      */
+      var i = 0;
+      for(; i < values.length - 1; i += 2) {
+        if( _truthy( apply(values[i], data) ) ) {
+          return apply(values[i + 1], data);
+        }
+      }
+
+      if(values.length == i + 1) return apply(values[i], data);
+      return null;
+
+    } else if(op == 'and') { // Return first falsy, or last
+      var current;
+      for(var i = 0; i < values.length; ++i) {
+        current = apply(values[i], data);
+        if( ! _truthy(current)) {
+          return current;
+        }
+      }
+      return current; // Last
+
+    } else if(op == 'or') {// Return first truthy, or last
+      var current;
+      for(var i = 0; i < values.length; ++i) {
+        current = apply(values[i], data);
+        if( _truthy(current) ) {
+          return current;
+        }
+      }
+      return current; // Last
+
+    } else if(op == 'filter'){
+      var scopedData = apply(values[0], data);
+      var scopedLogic = values[1];
+
+      if (! (scopedData is Iterable)) {
+        return [];
+      }
+      // Return only the elements from the array in the first argument,
+      // that return truthy when passed to the logic in the second argument.
+      // For parity with JavaScript, reindex the returned array
+      return scopedData.where((datum) => _truthy( apply(scopedLogic, datum)));
+
+    } else if(op == 'map'){
+      var scopedData = apply(values[0], data);
+      var scopedLogic = values[1];
+
+      if (! (scopedData is Iterable)) {
+        return [];
+      }
+
+      return scopedData.map((datum) => apply(scopedLogic, datum));
+
+    } else if(op == 'reduce'){
+      var scopedData = apply(values[0], data);
+      var scopedLogic = values[1];
+      var initial = values[2];
+
+      if (! (scopedData is Iterable)) {
+        return initial;
+      }
+
+      return scopedData.fold(
+        initial,
+        (accumulator, current) =>
+          apply(
+              scopedLogic,
+              {
+                'current': current,
+                'accumulator':accumulator
+              }
+          )
+      );
+
+    } else if(op == 'all') {
+      var scopedData = apply(values[0], data).toList();
+      var scopedLogic = values[1];
+
+      // All of an empty set is false. Note, some and none have correct fallback after the for loop
+      if(scopedData.length <= 0) {
+        return false;
+      }
+
+      for(var i = 0; i < scopedData.length; ++i) {
+        if( ! _truthy( apply(scopedLogic, scopedData[i]) )) {
+          return false; // First falsy, short circuit
+        }
+      }
+      return true; // All were truthy
+
+    } else if(op == 'none') {
+      var filtered = apply({'filter' : values}, data);
+      return filtered.length == 0;
+
+    } else if(op == 'some') {
+      var filtered = apply({'filter' : values}, data);
+      return filtered.length > 0;
+    }
 
     // Everyone else gets immediate depth-first recursion
     values = values.map((val) {
