@@ -156,9 +156,19 @@ class JsonLogic {
       // that return truthy when passed to the logic in the second argument.
       // For parity with JavaScript, reindex the returned array
       return scopedData.where((datum) => _truthy( apply(scopedLogic, datum)));
+
+    } else if(op == 'map'){
+      var scopedData = apply(values[0], data);
+      var scopedLogic = values[1];
+
+      if (! (scopedData is Iterable)) {
+        return [];
+      }
+
+      return scopedData.map((datum) => apply(scopedLogic, datum));
     }
 
-    //TODO Implement map, reduce, all, none, some
+    //TODO Implement reduce, all, none, some
 
     // Everyone else gets immediate depth-first recursion
     values = values.map((val) {

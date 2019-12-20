@@ -143,4 +143,45 @@ void main() {
       expect(JsonLogic.apply(logic, {}), [1, 3, 5]);
     });
   });
+
+  group('Map', () {
+    test('Empty array', () {
+      var serialized =
+      '''{
+        "map": [
+          [],
+          {"%":[{"var":""}, 2]}
+        ]
+      }''';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), []);
+    });
+
+    test('Not an array', () {
+      var serialized =
+      '''{
+        "map": [
+          1,
+          {"%":[{"var":""}, 2]}
+        ]
+      }''';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), []);
+    });
+
+    test('Mapped function', () {
+      var serialized =
+      '''{
+        "map": [
+          [1, 2, 3],
+          {"*":[{"var":""}, 2]}
+        ]
+      }''';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), [2, 4, 6]);
+    });
+  });
 }
