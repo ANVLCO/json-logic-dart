@@ -122,9 +122,29 @@ class JsonLogic {
 
       if(values.length == i + 1) return apply(values[i], data);
       return null;
+
+    } else if(op == 'and') { // Return first falsy, or last
+      var current;
+      for(var i = 0; i < values.length; ++i) {
+        current = apply(values[i], data);
+        if( ! _truthy(current)) {
+          return current;
+        }
+      }
+      return current; // Last
+
+    } else if(op == 'or') {// Return first truthy, or last
+      var current;
+      for(var i = 0; i < values.length; ++i) {
+        current = apply(values[i], data);
+        if( _truthy(current) ) {
+          return current;
+        }
+      }
+      return current; // Last
     }
 
-    //TODO Implement and, or, filter, map, reduce, all, none, some
+    //TODO Implement filter, map, reduce, all, none, some
 
     // Everyone else gets immediate depth-first recursion
     values = values.map((val) {
