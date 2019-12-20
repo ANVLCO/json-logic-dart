@@ -166,9 +166,30 @@ class JsonLogic {
       }
 
       return scopedData.map((datum) => apply(scopedLogic, datum));
+
+    } else if(op == 'reduce'){
+      var scopedData = apply(values[0], data);
+      var scopedLogic = values[1];
+      var initial = values[2];
+
+      if (! (scopedData is Iterable)) {
+        return initial;
+      }
+
+      return scopedData.fold(
+        initial,
+        (accumulator, current) =>
+          apply(
+              scopedLogic,
+              {
+                'current': current,
+                'accumulator':accumulator
+              }
+          )
+      );
     }
 
-    //TODO Implement reduce, all, none, some
+    //TODO Implement all, none, some
 
     // Everyone else gets immediate depth-first recursion
     values = values.map((val) {
