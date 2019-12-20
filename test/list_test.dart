@@ -228,4 +228,80 @@ void main() {
       expect(JsonLogic.apply(logic, {}), 6);
     });
   });
+
+  group('All', () {
+    test('Empty set', () {
+      var serialized = '{"all" : [ [], {">":[{"var":""}, 0]} ]}';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), false);
+    });
+
+    test('All integers match', () {
+      var serialized = '{"all" : [ [1,2,3], {">":[{"var":""}, 0]} ]}';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), true);
+    });
+
+    test('Some integers match', () {
+      var serialized = '{"all" : [ [1,2,3], {">":[{"var":""}, 2]} ]}';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), false);
+    });
+
+    test('No integers match', () {
+      var serialized = '{"all" : [ [1,2,3], {">":[{"var":""}, 4]} ]}';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), false);
+    });
+  });
+
+  group('None', () {
+    test('All integers match', () {
+      var serialized = '{"none" : [ [1,2,3], {">":[{"var":""}, 0]} ]}';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), false);
+    });
+
+    test('Some integers match', () {
+      var serialized = '{"none" : [ [1,2,3], {">":[{"var":""}, 2]} ]}';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), false);
+    });
+
+    test('No integers match', () {
+      var serialized = '{"none" : [ [1,2,3], {">":[{"var":""}, 4]} ]}';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), true);
+    });
+  });
+
+  group('Some', () {
+    test('All integers match', () {
+      var serialized = '{"some" : [ [1,2,3], {">":[{"var":""}, 0]} ]}';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), true);
+    });
+
+    test('Some integers match', () {
+      var serialized = '{"some" : [ [1,2,3], {">":[{"var":""}, 2]} ]}';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), true);
+    });
+
+    test('No integers match', () {
+      var serialized = '{"some" : [ [1,2,3], {">":[{"var":""}, 4]} ]}';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), false);
+    });
+  });
 }
