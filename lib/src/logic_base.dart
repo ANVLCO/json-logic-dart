@@ -26,6 +26,7 @@ class JsonLogic {
     'min'   :(a)       => (a as List).reduce((acc, val) => val.toString().compareTo(acc.toString()) < 0 ? val : acc),
     'max'   :(a)       => (a as List).reduce((acc, val) => val.toString().compareTo(acc.toString()) > 0 ? val : acc),
     'merge' :(a)       => (a as List).fold([], (acc, val) { val is Iterable ? acc.addAll(val) : acc.add(val); return acc; }),
+    //TODO Implement missing, missing_some, method
   };
 
   /// A JsonLogic requirement to consistently evaluate arrays
@@ -187,9 +188,31 @@ class JsonLogic {
               }
           )
       );
-    }
 
-    //TODO Implement all, none, some
+    } else if(op == 'all') {
+      var scopedData = apply(values[0], data).toList();
+      var scopedLogic = values[1];
+
+      // All of an empty set is false. Note, some and none have correct fallback after the for loop
+      if(scopedData.length <= 0) {
+        return false;
+      }
+
+      for(var i = 0; i < scopedData.length; ++i) {
+        if( ! _truthy( apply(scopedLogic, scopedData[i]) )) {
+          return false; // First falsy, short circuit
+        }
+      }
+      return true; // All were truthy
+
+    } else if(op == 'none') {
+      var filtered = apply({'filter' : values}, data);
+      return filtered.length == 0;
+
+    } else if(op == 'some') {
+      var filtered = apply({'filter' : values}, data);
+      return filtered.length > 0;
+    }
 
     // Everyone else gets immediate depth-first recursion
     values = values.map((val) {
