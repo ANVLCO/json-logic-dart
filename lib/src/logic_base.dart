@@ -26,7 +26,6 @@ class JsonLogic {
     'min'   :(a)       => (a as List).reduce((acc, val) => val.toString().compareTo(acc.toString()) < 0 ? val : acc),
     'max'   :(a)       => (a as List).reduce((acc, val) => val.toString().compareTo(acc.toString()) > 0 ? val : acc),
     'merge' :(a)       => (a as List).fold([], (acc, val) { val is Iterable ? acc.addAll(val) : acc.add(val); return acc; }),
-    //TODO Implement missing, missing_some, method
   };
 
   /// A JsonLogic requirement to consistently evaluate arrays
@@ -83,6 +82,28 @@ class JsonLogic {
 
   static String _getOperator(Map logic) {
     return logic.keys.first;
+  }
+
+  static List _missing(arguments, data) {
+    /*
+      Missing can receive many keys as many arguments, like {"missing:[1,2]}
+      Missing can also receive *one* argument that is an array of keys,
+      which typically happens if it's actually acting on the output of another command
+      (like 'if' or 'merge')
+      */
+
+    var missing = [];
+    var keys = arguments.length > 0 && arguments[0] is Iterable ? arguments[0].toList() : arguments;
+
+    for(var i = 0; i < keys.length; i++) {
+      var key = keys[i];
+      var value = apply({'var': key}, data);
+      if(value == null || value == '') {
+        missing.add(key);
+      }
+    }
+
+    return missing;
   }
 
   static dynamic apply(logic, data) {
@@ -225,6 +246,19 @@ class JsonLogic {
     // merge) can operate on the pseudo-array arguments.
     if(['cat', '+', '*', '-', 'min', 'max', 'merge'].contains(op)) {
       return operations[op](values);
+    } else if(op == 'missing') {
+      return _missing(values, data);
+    } else if(op == 'missing_some') {
+      // missing_some takes two arguments, how many (minimum) items must be present, and an array of keys (just like 'missing') to check for presence.
+      var need_count = values[0];
+      var options = values[1];
+      var are_missing = apply({'missing': options}, data);
+
+      if(options.length - are_missing.length >= need_count) {
+        return [];
+      }else{
+        return are_missing;
+      }
     } else if(op == 'var') {
       var defaultValue = values.length < 2 ? null : values[1];
       var name = values[0] is String ? values[0].trim() : values[0].toString();
