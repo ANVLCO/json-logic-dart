@@ -26,7 +26,6 @@ class JsonLogic {
     'min'   :(a)       => (a as List).reduce((acc, val) => val.toString().compareTo(acc.toString()) < 0 ? val : acc),
     'max'   :(a)       => (a as List).reduce((acc, val) => val.toString().compareTo(acc.toString()) > 0 ? val : acc),
     'merge' :(a)       => (a as List).fold([], (acc, val) { val is Iterable ? acc.addAll(val) : acc.add(val); return acc; }),
-    //TODO Implement missing_some, method
   };
 
   /// A JsonLogic requirement to consistently evaluate arrays
