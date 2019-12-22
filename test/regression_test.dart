@@ -31,4 +31,46 @@ void main() {
       expect(response, '12fizz4buzzfizz78fizzbuzz11fizz1314fizzbuzz');
     });
   });
+
+  group('Empty List', () {
+    test('List is empty', () {
+      var serialized =
+      '''{
+        "==": [ 
+          null, 
+          {"reduce": [
+            {"var": "mylist"}, 
+            {"cat":[
+              {"var": "current"}, 
+              {"var": "accumulator"}
+            ]} 
+          ]} 
+        ]
+      }''';
+
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), true);
+    });
+
+    test('List is not empty', () {
+      var serialized =
+      '''{
+        "==": [ 
+          null, 
+          {"reduce": [
+            {"var": "mylist"}, 
+            {"cat":[
+              {"var": "current"}, 
+              {"var": "accumulator"}
+            ]}
+          ]}
+        ]
+      }''';
+
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {'mylist': ['one', 'two']}), false);
+    });
+  });
 }

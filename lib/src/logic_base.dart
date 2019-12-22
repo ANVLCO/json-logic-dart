@@ -192,7 +192,7 @@ class JsonLogic {
     } else if(op == 'reduce'){
       var scopedData = apply(values[0], data);
       var scopedLogic = values[1];
-      var initial = values[2];
+      var initial = values.length >= 3 ? values[2] : null;
 
       if (! (scopedData is Iterable)) {
         return initial;
