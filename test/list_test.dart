@@ -31,6 +31,27 @@ void main() {
 
       expect(JsonLogic.apply(logic, {}), isFalse);
     });
+
+    test('Item within a string', () {
+      var serialized = '{"in" : [ "Mitch", "Mitcharoo" ]}';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), isTrue);
+    });
+
+    test('Item not within a string', () {
+      var serialized = '{"in" : [ "Mitch", "John" ]}';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), isFalse);
+    });
+
+    test('Item not within null', () {
+      var serialized = '{"in" : [ "Mitch", null ]}';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+
+      expect(JsonLogic.apply(logic, {}), isFalse);
+    });
   });
 
   group('Concatenate', () {

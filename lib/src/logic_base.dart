@@ -16,7 +16,7 @@ class JsonLogic {
     '!'     :(a)       => ! _truthy(a),
     '%'     :(a, b)    => a % b,
     'log'   :(a)       { print(a); return a; },
-    'in'    :(a, b)    => b.contains(a),
+    'in'    :(a, b)    => b == null ? false : b.contains(a),
     'cat'   :(a)       => (a as List).reduce((acc, val) => acc.toString() + val.toString()),
     'substr':(a, b, c) => (a.toString().substring(b, c)),
     '+'     :(a)       => (a as List).reduce((acc, val) => _safeInt(acc) + _safeInt(val)),
