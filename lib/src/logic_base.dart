@@ -25,7 +25,7 @@ class JsonLogic {
     '/'     :(a, b)    => _safeInt(a) / _safeInt(b),
     'min'   :(a)       => (a as List).reduce((acc, val) => val.toString().compareTo(acc.toString()) < 0 ? val : acc),
     'max'   :(a)       => (a as List).reduce((acc, val) => val.toString().compareTo(acc.toString()) > 0 ? val : acc),
-    'merge' :(a)       => (a as List).fold([], (acc, val) { val is Iterable ? acc.addAll(val) : acc.add(val); return acc; }),
+    'merge' :(a)       => (a as List).fold([], (dynamic acc, val) { val is Iterable ? acc.addAll(val) : acc.add(val); return acc; }),
   };
 
   /// A JsonLogic requirement to consistently evaluate arrays
@@ -52,7 +52,7 @@ class JsonLogic {
    return value;
   }
 
-  static dynamic _dereferenceVariable(String name, defaultValue, data) {
+  static dynamic _dereferenceVariable(String? name, defaultValue, data) {
     if(name == null || name == '') {
       return data;
     }
@@ -121,7 +121,7 @@ class JsonLogic {
 
     // easy syntax for unary operators, like {"var" : "x"} instead of strict {"var" : ["x"]}
     var op = _getOperator(logic);
-    List values = logic[op] is List ? logic[op] : [ logic[op] ];
+    List? values = logic[op] is List ? logic[op] : [ logic[op] ];
 
     // 'if', 'and', and 'or' violate the normal rule of depth-first calculating consequents, let each manage recursion as needed.
     if(op == 'if' || op == '?:') {
@@ -138,7 +138,7 @@ class JsonLogic {
       given 0 parameters, return NULL (not great practice, but there was no Else)
       */
       var i = 0;
-      for(; i < values.length - 1; i += 2) {
+      for(; i < values!.length - 1; i += 2) {
         if( _truthy( apply(values[i], data) ) ) {
           return apply(values[i + 1], data);
         }
@@ -149,7 +149,7 @@ class JsonLogic {
 
     } else if(op == 'and') { // Return first falsy, or last
       var current;
-      for(var i = 0; i < values.length; ++i) {
+      for(var i = 0; i < values!.length; ++i) {
         current = apply(values[i], data);
         if( ! _truthy(current)) {
           return current;
@@ -159,7 +159,7 @@ class JsonLogic {
 
     } else if(op == 'or') {// Return first truthy, or last
       var current;
-      for(var i = 0; i < values.length; ++i) {
+      for(var i = 0; i < values!.length; ++i) {
         current = apply(values[i], data);
         if( _truthy(current) ) {
           return current;
@@ -168,7 +168,7 @@ class JsonLogic {
       return current; // Last
 
     } else if(op == 'filter'){
-      var scopedData = apply(values[0], data);
+      var scopedData = apply(values![0], data);
       var scopedLogic = values[1];
 
       if (! (scopedData is Iterable)) {
@@ -180,7 +180,7 @@ class JsonLogic {
       return scopedData.where((datum) => _truthy( apply(scopedLogic, datum)));
 
     } else if(op == 'map'){
-      var scopedData = apply(values[0], data);
+      var scopedData = apply(values![0], data);
       var scopedLogic = values[1];
 
       if (! (scopedData is Iterable)) {
@@ -190,7 +190,7 @@ class JsonLogic {
       return scopedData.map((datum) => apply(scopedLogic, datum));
 
     } else if(op == 'reduce'){
-      var scopedData = apply(values[0], data);
+      var scopedData = apply(values![0], data);
       var scopedLogic = values[1];
       var initial = values.length >= 3 ? values[2] : null;
 
@@ -200,7 +200,7 @@ class JsonLogic {
 
       return scopedData.fold(
         initial,
-        (accumulator, current) =>
+        (dynamic accumulator, current) =>
           apply(
               scopedLogic,
               {
@@ -211,7 +211,7 @@ class JsonLogic {
       );
 
     } else if(op == 'all') {
-      var scopedData = apply(values[0], data).toList();
+      var scopedData = apply(values![0], data).toList();
       var scopedLogic = values[1];
 
       // All of an empty set is false. Note, some and none have correct fallback after the for loop
@@ -236,7 +236,7 @@ class JsonLogic {
     }
 
     // Everyone else gets immediate depth-first recursion
-    values = values.map((val) {
+    values = values!.map((val) {
       return apply(val, data);
     }).toList();
 
@@ -245,7 +245,7 @@ class JsonLogic {
     // or > can name formal arguments while flexible commands (like missing or
     // merge) can operate on the pseudo-array arguments.
     if(['cat', '+', '*', '-', 'min', 'max', 'merge'].contains(op)) {
-      return operations[op](values);
+      return operations[op]!(values);
     } else if(op == 'missing') {
       return _missing(values, data);
     } else if(op == 'missing_some') {
@@ -264,7 +264,7 @@ class JsonLogic {
       var name = values[0] is String ? values[0].trim() : values[0].toString();
       return _dereferenceVariable(name, defaultValue, data);
     } else {
-      return Function.apply(operations[op], values);
+      return Function.apply(operations[op]!, values);
     }
   }
 }
