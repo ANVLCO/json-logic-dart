@@ -25,7 +25,7 @@ class JsonLogic {
     '/'     :(a, b)    => _safeInt(a) / _safeInt(b),
     'min'   :(a)       => (a as List).reduce((acc, val) => val.toString().compareTo(acc.toString()) < 0 ? val : acc),
     'max'   :(a)       => (a as List).reduce((acc, val) => val.toString().compareTo(acc.toString()) > 0 ? val : acc),
-    'merge' :(a)       => (a as List).fold([], (acc, val) { val is Iterable ? acc.addAll(val) : acc.add(val); return acc; }),
+    'merge' :(a)       => (a as List).fold([], (dynamic acc, val) { val is Iterable ? acc.addAll(val) : acc.add(val); return acc; }),
   };
 
   /// A JsonLogic requirement to consistently evaluate arrays
@@ -52,7 +52,7 @@ class JsonLogic {
    return value;
   }
 
-  static dynamic _dereferenceVariable(String name, defaultValue, data) {
+  static dynamic _dereferenceVariable(String? name, defaultValue, data) {
     if(name == null || name == '') {
       return data;
     }
@@ -200,7 +200,7 @@ class JsonLogic {
 
       return scopedData.fold(
         initial,
-        (accumulator, current) =>
+        (dynamic accumulator, current) =>
           apply(
               scopedLogic,
               {
@@ -245,7 +245,7 @@ class JsonLogic {
     // or > can name formal arguments while flexible commands (like missing or
     // merge) can operate on the pseudo-array arguments.
     if(['cat', '+', '*', '-', 'min', 'max', 'merge'].contains(op)) {
-      return operations[op](values);
+      return operations[op]!(values);
     } else if(op == 'missing') {
       return _missing(values, data);
     } else if(op == 'missing_some') {
@@ -264,7 +264,7 @@ class JsonLogic {
       var name = values[0] is String ? values[0].trim() : values[0].toString();
       return _dereferenceVariable(name, defaultValue, data);
     } else {
-      return Function.apply(operations[op], values);
+      return Function.apply(operations[op]!, values);
     }
   }
 }
