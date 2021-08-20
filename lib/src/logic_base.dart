@@ -4,45 +4,34 @@
 
 class JsonLogic {
   static final Map<String, Function> operations = {
-    '==': (a, b) => a == b, // Assume everything is a primitive
-    '===': (a, b) => a == b,
-    '!=': (a, b) => a != b, // Assume everything is a primitive
-    '!==': (a, b) => a != b,
-    '>': (a, b) => a > b,
-    '>=': (a, b) => a >= b,
-    '<': (a, b) => a < b,
-    '<=': (a, b) => a <= b,
-    '!!': (a) => _truthy(a),
-    '!': (a) => !_truthy(a),
-    '%': (a, b) => a % b,
-    'log': (a) {
-      print(a);
-      return a;
-    },
-    'in': (a, b) => b == null ? false : b.contains(a),
-    'cat': (a) =>
-        (a as List).reduce((acc, val) => acc.toString() + val.toString()),
-    'substr': (a, b, c) => (a.toString().substring(b, c)),
-    '+': (a) => (a as List).reduce((acc, val) => _safeInt(acc) + _safeInt(val)),
-    '*': (a) => (a as List).reduce((acc, val) => _safeInt(acc) * _safeInt(val)),
-    '-': (a) => _isSingle(a)
-        ? _safeInt(a) * -1
-        : (a as List).reduce((acc, val) => _safeInt(acc) - _safeInt(val)),
-    '/': (a, b) => _safeInt(a) / _safeInt(b),
-    'min': (a) => (a as List).reduce(
-        (acc, val) => val.toString().compareTo(acc.toString()) < 0 ? val : acc),
-    'max': (a) => (a as List).reduce(
-        (acc, val) => val.toString().compareTo(acc.toString()) > 0 ? val : acc),
-    'merge': (a) => (a as List).fold([], (dynamic acc, val) {
-          val is Iterable ? acc.addAll(val) : acc.add(val);
-          return acc;
-        }),
+    '=='    :(a, b)    => a == b, // Assume everything is a primitive
+    '==='   :(a, b)    => a == b,
+    '!='    :(a, b)    => a != b, // Assume everything is a primitive
+    '!=='   :(a, b)    => a != b,
+    '>'     :(a, b)    => a > b,
+    '>='    :(a, b)    => a >= b,
+    '<'     :(a, b)    => a < b,
+    '<='    :(a, b)    => a <= b,
+    '!!'    :(a)       => _truthy(a),
+    '!'     :(a)       => ! _truthy(a),
+    '%'     :(a, b)    => a % b,
+    'log'   :(a)       { print(a); return a; },
+    'in'    :(a, b)    => b == null ? false : b.contains(a),
+    'cat'   :(a)       => (a as List).reduce((acc, val) => acc.toString() + val.toString()),
+    'substr':(a, b, c) => (a.toString().substring(b, c)),
+    '+'     :(a)       => (a as List).reduce((acc, val) => _safeInt(acc) + _safeInt(val)),
+    '*'     :(a)       => (a as List).reduce((acc, val) => _safeInt(acc) * _safeInt(val)),
+    '-'     :(a)       => _isSingle(a) ? _safeInt(a) * -1 : (a as List).reduce((acc, val) => _safeInt(acc) - _safeInt(val)),
+    '/'     :(a, b)    => _safeInt(a) / _safeInt(b),
+    'min'   :(a)       => (a as List).reduce((acc, val) => val.toString().compareTo(acc.toString()) < 0 ? val : acc),
+    'max'   :(a)       => (a as List).reduce((acc, val) => val.toString().compareTo(acc.toString()) > 0 ? val : acc),
+    'merge' :(a)       => (a as List).fold([], (dynamic acc, val) { val is Iterable ? acc.addAll(val) : acc.add(val); return acc; }),
   };
 
   /// A JsonLogic requirement to consistently evaluate arrays
   /// http://jsonlogic.com/truthy
   static bool _truthy(dynamic value) {
-    if (value is Iterable) {
+    if(value is Iterable) {
       return value.isNotEmpty;
     } else if (value is bool) {
       return value;
@@ -54,28 +43,28 @@ class JsonLogic {
   }
 
   static int _safeInt(value) {
-    if (value is String) {
-      return int.parse(value);
-    } else if (value is Iterable) {
-      return _safeInt(value.single);
-    }
+   if(value is String) {
+     return int.parse(value);
+   } else if(value is Iterable) {
+     return _safeInt(value.single);
+   }
 
-    return value;
+   return value;
   }
 
   static dynamic _dereferenceVariable(String? name, defaultValue, data) {
-    if (name == null || name == '') {
+    if(name == null || name == '') {
       return data;
     }
 
-    for (var prop in name.split('.')) {
-      if (data == null || data.isEmpty) {
+    for(var prop in name.split('.')) {
+      if(data == null || data.isEmpty) {
         return defaultValue;
       }
 
-      if (data is Map && data.containsKey(prop)) {
+      if(data is Map && data.containsKey(prop)) {
         data = data[prop];
-      } else if (data is Iterable) {
+      } else if(data is Iterable) {
         return data.elementAt(int.parse(prop));
       } else {
         return defaultValue;
@@ -104,14 +93,12 @@ class JsonLogic {
       */
 
     var missing = [];
-    var keys = arguments.length > 0 && arguments[0] is Iterable
-        ? arguments[0].toList()
-        : arguments;
+    var keys = arguments.length > 0 && arguments[0] is Iterable ? arguments[0].toList() : arguments;
 
-    for (var i = 0; i < keys.length; i++) {
+    for(var i = 0; i < keys.length; i++) {
       var key = keys[i];
       var value = apply({'var': key}, data);
-      if (value == null || value == '') {
+      if(value == null || value == '') {
         missing.add(key);
       }
     }
@@ -121,12 +108,12 @@ class JsonLogic {
 
   static dynamic apply(logic, data) {
     // Does this array contain logic? Only one way to find out.
-    if (logic is Iterable) {
+    if(logic is Iterable) {
       return logic.map((l) => apply(l, data));
     }
 
     // You've recursed to a primitive, stop!
-    if (!_isLogic(logic)) {
+    if(! _isLogic(logic)) {
       return logic;
     }
 
@@ -134,10 +121,10 @@ class JsonLogic {
 
     // easy syntax for unary operators, like {"var" : "x"} instead of strict {"var" : ["x"]}
     var op = _getOperator(logic);
-    List values = logic[op] is List ? logic[op] : [logic[op]];
+    List? values = logic[op] is List ? logic[op] : [ logic[op] ];
 
     // 'if', 'and', and 'or' violate the normal rule of depth-first calculating consequents, let each manage recursion as needed.
-    if (op == 'if' || op == '?:') {
+    if(op == 'if' || op == '?:') {
       /* 'if' should be called with a odd number of parameters, 3 or greater
       This works on the pattern:
       if( 0 ){ 1 }else{ 2 };
@@ -151,95 +138,105 @@ class JsonLogic {
       given 0 parameters, return NULL (not great practice, but there was no Else)
       */
       var i = 0;
-      for (; i < values.length - 1; i += 2) {
-        if (_truthy(apply(values[i], data))) {
+      for(; i < values!.length - 1; i += 2) {
+        if( _truthy( apply(values[i], data) ) ) {
           return apply(values[i + 1], data);
         }
       }
 
-      if (values.length == i + 1) return apply(values[i], data);
+      if(values.length == i + 1) return apply(values[i], data);
       return null;
-    } else if (op == 'and') {
-      // Return first falsy, or last
+
+    } else if(op == 'and') { // Return first falsy, or last
       var current;
-      for (var i = 0; i < values.length; ++i) {
+      for(var i = 0; i < values!.length; ++i) {
         current = apply(values[i], data);
-        if (!_truthy(current)) {
+        if( ! _truthy(current)) {
           return current;
         }
       }
       return current; // Last
 
-    } else if (op == 'or') {
-      // Return first truthy, or last
+    } else if(op == 'or') {// Return first truthy, or last
       var current;
-      for (var i = 0; i < values.length; ++i) {
+      for(var i = 0; i < values!.length; ++i) {
         current = apply(values[i], data);
-        if (_truthy(current)) {
+        if( _truthy(current) ) {
           return current;
         }
       }
       return current; // Last
 
-    } else if (op == 'filter') {
-      var scopedData = apply(values[0], data);
+    } else if(op == 'filter'){
+      var scopedData = apply(values![0], data);
       var scopedLogic = values[1];
 
-      if (!(scopedData is Iterable)) {
+      if (! (scopedData is Iterable)) {
         return [];
       }
       // Return only the elements from the array in the first argument,
       // that return truthy when passed to the logic in the second argument.
       // For parity with JavaScript, reindex the returned array
-      return scopedData.where((datum) => _truthy(apply(scopedLogic, datum)));
-    } else if (op == 'map') {
-      var scopedData = apply(values[0], data);
+      return scopedData.where((datum) => _truthy( apply(scopedLogic, datum)));
+
+    } else if(op == 'map'){
+      var scopedData = apply(values![0], data);
       var scopedLogic = values[1];
 
-      if (!(scopedData is Iterable)) {
+      if (! (scopedData is Iterable)) {
         return [];
       }
 
       return scopedData.map((datum) => apply(scopedLogic, datum));
-    } else if (op == 'reduce') {
-      var scopedData = apply(values[0], data);
+
+    } else if(op == 'reduce'){
+      var scopedData = apply(values![0], data);
       var scopedLogic = values[1];
       var initial = values.length >= 3 ? values[2] : null;
 
-      if (!(scopedData is Iterable)) {
+      if (! (scopedData is Iterable)) {
         return initial;
       }
 
       return scopedData.fold(
-          initial,
-          (dynamic accumulator, current) => apply(
-              scopedLogic, {'current': current, 'accumulator': accumulator}));
-    } else if (op == 'all') {
-      var scopedData = apply(values[0], data).toList();
+        initial,
+        (dynamic accumulator, current) =>
+          apply(
+              scopedLogic,
+              {
+                'current': current,
+                'accumulator':accumulator
+              }
+          )
+      );
+
+    } else if(op == 'all') {
+      var scopedData = apply(values![0], data).toList();
       var scopedLogic = values[1];
 
       // All of an empty set is false. Note, some and none have correct fallback after the for loop
-      if (scopedData.length <= 0) {
+      if(scopedData.length <= 0) {
         return false;
       }
 
-      for (var i = 0; i < scopedData.length; ++i) {
-        if (!_truthy(apply(scopedLogic, scopedData[i]))) {
+      for(var i = 0; i < scopedData.length; ++i) {
+        if( ! _truthy( apply(scopedLogic, scopedData[i]) )) {
           return false; // First falsy, short circuit
         }
       }
       return true; // All were truthy
 
-    } else if (op == 'none') {
-      var filtered = apply({'filter': values}, data);
+    } else if(op == 'none') {
+      var filtered = apply({'filter' : values}, data);
       return filtered.length == 0;
-    } else if (op == 'some') {
-      var filtered = apply({'filter': values}, data);
+
+    } else if(op == 'some') {
+      var filtered = apply({'filter' : values}, data);
       return filtered.length > 0;
     }
 
     // Everyone else gets immediate depth-first recursion
-    values = values.map((val) {
+    values = values!.map((val) {
       return apply(val, data);
     }).toList();
 
@@ -247,22 +244,22 @@ class JsonLogic {
     // and "values" passed as positional arguments. Structured commands like %
     // or > can name formal arguments while flexible commands (like missing or
     // merge) can operate on the pseudo-array arguments.
-    if (['cat', '+', '*', '-', 'min', 'max', 'merge'].contains(op)) {
+    if(['cat', '+', '*', '-', 'min', 'max', 'merge'].contains(op)) {
       return operations[op]!(values);
-    } else if (op == 'missing') {
+    } else if(op == 'missing') {
       return _missing(values, data);
-    } else if (op == 'missing_some') {
+    } else if(op == 'missing_some') {
       // missing_some takes two arguments, how many (minimum) items must be present, and an array of keys (just like 'missing') to check for presence.
       var need_count = values[0];
       var options = values[1];
       var are_missing = apply({'missing': options}, data);
 
-      if (options.length - are_missing.length >= need_count) {
+      if(options.length - are_missing.length >= need_count) {
         return [];
-      } else {
+      }else{
         return are_missing;
       }
-    } else if (op == 'var') {
+    } else if(op == 'var') {
       var defaultValue = values.length < 2 ? null : values[1];
       var name = values[0] is String ? values[0].trim() : values[0].toString();
       return _dereferenceVariable(name, defaultValue, data);
