@@ -121,7 +121,7 @@ class JsonLogic {
 
     // easy syntax for unary operators, like {"var" : "x"} instead of strict {"var" : ["x"]}
     var op = _getOperator(logic);
-    List? values = logic[op] is List ? logic[op] : [ logic[op] ];
+    List values = logic[op] is List ? logic[op] : [ logic[op] ];
 
     // 'if', 'and', and 'or' violate the normal rule of depth-first calculating consequents, let each manage recursion as needed.
     if(op == 'if' || op == '?:') {
@@ -138,7 +138,7 @@ class JsonLogic {
       given 0 parameters, return NULL (not great practice, but there was no Else)
       */
       var i = 0;
-      for(; i < values!.length - 1; i += 2) {
+      for(; i < values.length - 1; i += 2) {
         if( _truthy( apply(values[i], data) ) ) {
           return apply(values[i + 1], data);
         }
@@ -149,7 +149,7 @@ class JsonLogic {
 
     } else if(op == 'and') { // Return first falsy, or last
       var current;
-      for(var i = 0; i < values!.length; ++i) {
+      for(var i = 0; i < values.length; ++i) {
         current = apply(values[i], data);
         if( ! _truthy(current)) {
           return current;
@@ -159,7 +159,7 @@ class JsonLogic {
 
     } else if(op == 'or') {// Return first truthy, or last
       var current;
-      for(var i = 0; i < values!.length; ++i) {
+      for(var i = 0; i < values.length; ++i) {
         current = apply(values[i], data);
         if( _truthy(current) ) {
           return current;
@@ -168,7 +168,7 @@ class JsonLogic {
       return current; // Last
 
     } else if(op == 'filter'){
-      var scopedData = apply(values![0], data);
+      var scopedData = apply(values[0], data);
       var scopedLogic = values[1];
 
       if (! (scopedData is Iterable)) {
@@ -180,7 +180,7 @@ class JsonLogic {
       return scopedData.where((datum) => _truthy( apply(scopedLogic, datum)));
 
     } else if(op == 'map'){
-      var scopedData = apply(values![0], data);
+      var scopedData = apply(values[0], data);
       var scopedLogic = values[1];
 
       if (! (scopedData is Iterable)) {
@@ -190,7 +190,7 @@ class JsonLogic {
       return scopedData.map((datum) => apply(scopedLogic, datum));
 
     } else if(op == 'reduce'){
-      var scopedData = apply(values![0], data);
+      var scopedData = apply(values[0], data);
       var scopedLogic = values[1];
       var initial = values.length >= 3 ? values[2] : null;
 
@@ -211,7 +211,7 @@ class JsonLogic {
       );
 
     } else if(op == 'all') {
-      var scopedData = apply(values![0], data).toList();
+      var scopedData = apply(values[0], data).toList();
       var scopedLogic = values[1];
 
       // All of an empty set is false. Note, some and none have correct fallback after the for loop
@@ -236,7 +236,7 @@ class JsonLogic {
     }
 
     // Everyone else gets immediate depth-first recursion
-    values = values!.map((val) {
+    values = values.map((val) {
       return apply(val, data);
     }).toList();
 
