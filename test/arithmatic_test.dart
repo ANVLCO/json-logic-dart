@@ -135,4 +135,33 @@ void main() {
       expect(JsonLogic.apply(logic, {}), 'zaz');
     });
   });
+
+  group('Random', () {
+    test('returns item from array', () {
+      var serialized = '{ "rand" : ["a", "b", "c", "d", "e"] }';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+      var result = JsonLogic.apply(logic, {});
+      expect(["a", "b", "c", "d", "e"].contains(result), true);
+    });
+
+    test('works with single item', () {
+      var serialized = '{ "rand" : ["only"] }';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+      expect(JsonLogic.apply(logic, {}), "only");
+    });
+
+    test('works with integers', () {
+      var serialized = '{ "rand" : [1, 2, 3, 4, 5] }';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+      var result = JsonLogic.apply(logic, {});
+      expect([1, 2, 3, 4, 5].contains(result), true);
+    });
+
+    test('works with var operator', () {
+      var serialized = '{ "rand" : {"var": "pool"} }';
+      Map logic = jsonDecode(serialized) as Map<String, dynamic>;
+      var result = JsonLogic.apply(logic, {"pool": ["x", "y", "z"]});
+      expect(["x", "y", "z"].contains(result), true);
+    });
+  });
 }

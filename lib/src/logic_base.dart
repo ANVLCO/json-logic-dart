@@ -1,3 +1,5 @@
+import 'dart:math';
+
 /// Port of json-logic-js
 /// Largely a line-by-line rephrasing of the JavaScript library as a Dart library
 /// Intentionally trying to keep all side-effects and nuances intact with this version
@@ -26,6 +28,7 @@ class JsonLogic {
     'min'   :(a)       => (a as List).reduce((acc, val) => val.toString().compareTo(acc.toString()) < 0 ? val : acc),
     'max'   :(a)       => (a as List).reduce((acc, val) => val.toString().compareTo(acc.toString()) > 0 ? val : acc),
     'merge' :(a)       => (a as List).fold([], (dynamic acc, val) { val is Iterable ? acc.addAll(val) : acc.add(val); return acc; }),
+    'rand'  :(a)       { var list = (a as List); if (list.length == 1 && list[0] is List) list = list[0] as List; return list[Random().nextInt(list.length)]; },
   };
 
   /// A JsonLogic requirement to consistently evaluate arrays
@@ -244,7 +247,7 @@ class JsonLogic {
     // and "values" passed as positional arguments. Structured commands like %
     // or > can name formal arguments while flexible commands (like missing or
     // merge) can operate on the pseudo-array arguments.
-    if(['cat', '+', '*', '-', 'min', 'max', 'merge'].contains(op)) {
+    if(['cat', '+', '*', '-', 'min', 'max', 'merge', 'rand'].contains(op)) {
       return operations[op]!(values);
     } else if(op == 'missing') {
       return _missing(values, data);
